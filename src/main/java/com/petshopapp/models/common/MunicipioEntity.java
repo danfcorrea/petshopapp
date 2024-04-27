@@ -1,5 +1,6 @@
 package com.petshopapp.models.common;
 
+import com.petshopapp.dtos.common.endereco.ResponseMunicipioDTO;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -17,9 +18,15 @@ public class MunicipioEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String sigla;
     private String descricao;
     @ManyToOne(fetch = FetchType.EAGER, optional = false)
     @JoinColumn(name = "estado_id", nullable = false, insertable = false, updatable = false)
     private EstadoEntity estado;
+
+    public ResponseMunicipioDTO fromDTO() {
+        return new ResponseMunicipioDTO(
+                this.getId(),
+                this.getDescricao(),
+                this.estado.fromDTO());
+    }
 }

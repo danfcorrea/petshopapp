@@ -1,5 +1,6 @@
 package com.petshopapp.models.common;
 
+import com.petshopapp.dtos.common.endereco.ResponseEstadoDTO;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -18,8 +19,14 @@ public class EstadoEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String Sigla;
+    private String sigla;
     private String descricao;
     @OneToMany(mappedBy = "estado")
     private List<MunicipioEntity> municipios;
+
+    public ResponseEstadoDTO fromDTO() {
+        return new ResponseEstadoDTO(
+                this.getSigla(),
+                this.getDescricao());
+    }
 }

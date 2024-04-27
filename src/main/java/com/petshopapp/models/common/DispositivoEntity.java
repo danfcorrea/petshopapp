@@ -1,5 +1,7 @@
 package com.petshopapp.models.common;
 
+import com.petshopapp.dtos.common.dispositivo.RequestDispositivoDTO;
+import com.petshopapp.dtos.common.dispositivo.ResponseDispositivoDTO;
 import com.petshopapp.models.user.UserEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -25,4 +27,17 @@ public class DispositivoEntity {
     @ManyToOne(fetch = FetchType.EAGER, optional = false)
     @JoinColumn(name = "user_id", nullable = false)
     private UserEntity user;
+
+    public DispositivoEntity(RequestDispositivoDTO request, String nome){
+        this.nome = nome;
+        this.token = request.token();
+        this.dtCadastro = new Date();
+    }
+    public ResponseDispositivoDTO fromDTO(){
+        return new ResponseDispositivoDTO(
+                this.getId(),
+                this.getNome(),
+                this.getToken(),
+                this.getDtCadastro());
+    }
 }

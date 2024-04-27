@@ -1,5 +1,7 @@
 package com.petshopapp.models.common;
 
+import com.petshopapp.dtos.common.endereco.RequestEnderecoDTO;
+import com.petshopapp.dtos.common.endereco.ResponseEnderecoDTO;
 import com.petshopapp.models.user.UserEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -27,4 +29,20 @@ public class EnderecoEntity {
     @ManyToOne(fetch = FetchType.EAGER, optional = false)
     @JoinColumn(name = "user_id", nullable = false)
     private UserEntity user;
+
+    public EnderecoEntity(RequestEnderecoDTO request) {
+        this.cep = request.cep();
+        this.logradouro = request.logradouro();
+        this.numero = request.numero();
+        this.complemento = request.complemento();
+    }
+    public ResponseEnderecoDTO fromDTO(){
+        return new ResponseEnderecoDTO(
+                this.getId(),
+                this.getCep(),
+                this.getLogradouro(),
+                this.getNumero(),
+                this.getComplemento(),
+                this.municipio.fromDTO());
+    }
 }
