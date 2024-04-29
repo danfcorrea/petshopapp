@@ -1,6 +1,5 @@
 package com.petshopapp.controllers;
 
-import com.petshopapp.dtos.common.dispositivo.RequestDispositivoDTO;
 import com.petshopapp.dtos.common.endereco.RequestEnderecoDTO;
 import com.petshopapp.dtos.user.LoginRequestDTO;
 import com.petshopapp.dtos.user.RegisterRequestDTO;
@@ -10,9 +9,9 @@ import com.petshopapp.models.common.EnderecoEntity;
 import com.petshopapp.models.user.UserEntity;
 import com.petshopapp.repositories.MunicipioRepository;
 import com.petshopapp.repositories.user.UserRepository;
-import io.micrometer.common.util.StringUtils;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.BooleanUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -35,11 +34,12 @@ public class AuthController extends BaseRest{
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequestDTO requestBody) {
         try{
-            return this.userRepository.findByEmail(requestBody.login())
-                    .map(user ->
-                            BooleanUtils.isTrue(passwordEncoder.matches(requestBody.pass(), user.getSenha()))
-                                    ? ResponseEntity.ok(user.fromDTO(this.tokenService.generateToken(user)))
-                                    : ResponseEntity.badRequest().body("Authentication failed"))
+            return this.userRepository.findByEmailOrCpfCnpj(requestBody.login().contains("@")
+                            ? requestBody.login()
+                            : StringUtils.getDigits(requestBody.login()))
+                    .map(user -> BooleanUtils.isTrue(passwordEncoder.matches(requestBody.pass(), user.getSenha()))
+                            ? ResponseEntity.ok(user.fromDTO(this.tokenService.generateToken(user)))
+                            : ResponseEntity.badRequest().body("Authentication failed"))
                     .orElseThrow(() -> new RuntimeException("User not found"));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(getStatus(e.getMessage()));
@@ -48,8 +48,10 @@ public class AuthController extends BaseRest{
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody RegisterRequestDTO requestBody) {
         try{
-            String login = StringUtils.isNotBlank(requestBody.email()) ? requestBody.email() : requestBody.cpfCnpj();
-            this.userRepository.findByEmailOrCpfCnpj(login).map(user -> ResponseEntity.badRequest().body("already registered user"));
+            this.userRepository.findByEmailOrCpfCnpj(requestBody.email())
+                    .map(user -> ResponseEntity.badRequest().body("already registered user"));
+            this.userRepository.findByEmailOrCpfCnpj(StringUtils.getDigits(requestBody.cpfCnpj()))
+                    .map(user -> ResponseEntity.badRequest().body("already registered user"));
             UserEntity newUser = new UserEntity(requestBody);
             newUser.setSenha(passwordEncoder.encode(requestBody.senha()));
             newUser.setDispositivos(createNewDispositivo(requestBody.tokenDispositivo()));
