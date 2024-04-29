@@ -5,13 +5,15 @@ import com.petshopapp.dtos.user.RegisterRequestDTO;
 import com.petshopapp.models.common.DispositivoEntity;
 import com.petshopapp.models.common.EnderecoEntity;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.time.DateFormatUtils;
+import org.apache.commons.lang3.time.DateUtils;
 
 import java.util.Date;
 import java.util.List;
+
+import static com.petshopapp.infra.utils.Constants.PATTERN_DATAS_TELA;
 
 @Getter
 @Setter
@@ -36,10 +38,11 @@ public class UserEntity {
     @OneToMany(mappedBy = "user")
     private List<DispositivoEntity> dispositivos;
 
+    @SneakyThrows
     public UserEntity(RegisterRequestDTO register){
         this.nome = register.nome();
-        this.cpfCnpj = register.cpfCnpj();
-        this.dtNascimento = register.dtNascimento();
+        this.cpfCnpj = StringUtils.getDigits(register.cpfCnpj());
+        this.dtNascimento = DateUtils.parseDate(register.dtNascimento(), PATTERN_DATAS_TELA);
         this.telefone = register.telefone();
         this.email = register.email();
         this.dtCadastro = new Date();
@@ -50,7 +53,7 @@ public class UserEntity {
                 this.getId(),
                 this.getNome(),
                 this.getCpfCnpj(),
-                this.getDtNascimento(),
+                DateFormatUtils.format(this.getDtNascimento(), PATTERN_DATAS_TELA),
                 this.getTelefone(),
                 this.getEmail(),
                 token);

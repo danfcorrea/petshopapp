@@ -52,7 +52,7 @@ public class AuthController extends BaseRest{
             this.userRepository.findByEmailOrCpfCnpj(login).map(user -> ResponseEntity.badRequest().body("already registered user"));
             UserEntity newUser = new UserEntity(requestBody);
             newUser.setSenha(passwordEncoder.encode(requestBody.senha()));
-            newUser.setDispositivos(createNewDispositivo(requestBody.dispositivo()));
+            newUser.setDispositivos(createNewDispositivo(requestBody.tokenDispositivo()));
             newUser.setEndereco(createNewEndereco(requestBody.endereco()));
             this.userRepository.save(newUser);
             return ResponseEntity.ok(newUser.fromDTO(this.tokenService.generateToken(newUser)));
@@ -67,9 +67,9 @@ public class AuthController extends BaseRest{
         enderecos.add(newEndereco);
         return enderecos;
     }
-    public List<DispositivoEntity> createNewDispositivo(RequestDispositivoDTO dispositivo){
+    public List<DispositivoEntity> createNewDispositivo(String tokenDispositivo){
         List<DispositivoEntity> dispositivos = new ArrayList<>();
-        dispositivos.add(new DispositivoEntity(dispositivo, "Dspositivo_01"));
+        dispositivos.add(new DispositivoEntity(tokenDispositivo, "Dspositivo_01"));
         return dispositivos;
     }
 }

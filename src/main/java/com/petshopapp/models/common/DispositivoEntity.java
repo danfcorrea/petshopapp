@@ -28,9 +28,9 @@ public class DispositivoEntity {
     @JoinColumn(name = "user_id", nullable = false)
     private UserEntity user;
 
-    public DispositivoEntity(RequestDispositivoDTO request, String nome){
+    public DispositivoEntity(String tokenDispositivo, String nome){
         this.nome = nome;
-        this.token = request.token();
+        this.token = tokenDispositivo;
         this.dtCadastro = new Date();
     }
     public ResponseDispositivoDTO fromDTO(){

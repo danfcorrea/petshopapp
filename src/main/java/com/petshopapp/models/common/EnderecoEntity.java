@@ -8,6 +8,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.apache.commons.lang3.StringUtils;
 
 @Getter
 @Setter
@@ -31,7 +32,7 @@ public class EnderecoEntity {
     private UserEntity user;
 
     public EnderecoEntity(RequestEnderecoDTO request) {
-        this.cep = request.cep();
+        this.cep = StringUtils.getDigits(request.cep());
         this.logradouro = request.logradouro();
         this.numero = request.numero();
         this.complemento = request.complemento();
