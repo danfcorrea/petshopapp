@@ -1,0 +1,10 @@
+package com.petshopapp.dtos.common.endereco;
+
+public record ResponseEnderecoDTO(
+        Long id,
+        String cep,
+        String logradouro,
+        Integer numero,
+        String complemento,
+        ResponseMunicipioDTO municipio) {
+}
