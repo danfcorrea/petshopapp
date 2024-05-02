@@ -1,7 +1,7 @@
 package com.petshopapp.infra.security;
 
 import com.petshopapp.models.user.UserEntity;
-import com.petshopapp.repositories.user.UserRepository;
+import com.petshopapp.repositories.UserRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

@@ -7,8 +7,8 @@ import com.petshopapp.infra.security.TokenService;
 import com.petshopapp.models.common.DispositivoEntity;
 import com.petshopapp.models.common.EnderecoEntity;
 import com.petshopapp.models.user.UserEntity;
-import com.petshopapp.repositories.MunicipioRepository;
-import com.petshopapp.repositories.user.UserRepository;
+import com.petshopapp.services.EnderecoService;
+import com.petshopapp.services.UserService;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -26,15 +26,15 @@ import java.util.List;
 @RequestMapping("auth")
 @RequiredArgsConstructor
 public class AuthController extends BaseRest{
-    private final UserRepository userRepository;
-    private final MunicipioRepository municipioRepository;
+    private final UserService userService;
+    private final EnderecoService enderecoService;
     private final PasswordEncoder passwordEncoder;
     private final TokenService tokenService;
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequestDTO requestBody) {
         try{
-            return this.userRepository.findByEmailOrCpfCnpj(requestBody.login().contains("@")
+            return this.userService.findByEmailOrCpfCnpj(requestBody.login().contains("@")
                             ? requestBody.login()
                             : StringUtils.getDigits(requestBody.login()))
                     .map(user -> BooleanUtils.isTrue(passwordEncoder.matches(requestBody.pass(), user.getSenha()))
@@ -48,15 +48,15 @@ public class AuthController extends BaseRest{
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody RegisterRequestDTO requestBody) {
         try{
-            this.userRepository.findByEmailOrCpfCnpj(requestBody.email())
+            this.userService.findByEmailOrCpfCnpj(requestBody.email())
                     .map(user -> ResponseEntity.badRequest().body("already registered user"));
-            this.userRepository.findByEmailOrCpfCnpj(StringUtils.getDigits(requestBody.cpfCnpj()))
+            this.userService.findByEmailOrCpfCnpj(StringUtils.getDigits(requestBody.cpfCnpj()))
                     .map(user -> ResponseEntity.badRequest().body("already registered user"));
             UserEntity newUser = new UserEntity(requestBody);
             newUser.setSenha(passwordEncoder.encode(requestBody.senha()));
             newUser.setDispositivos(createNewDispositivo(requestBody.tokenDispositivo()));
             newUser.setEndereco(createNewEndereco(requestBody.endereco()));
-            this.userRepository.save(newUser);
+            this.userService.saveUser(newUser);
             return ResponseEntity.ok(newUser.fromDTO(this.tokenService.generateToken(newUser)));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(getStatus(e.getMessage()));
@@ -65,7 +65,7 @@ public class AuthController extends BaseRest{
     private List<EnderecoEntity> createNewEndereco(RequestEnderecoDTO endereco) {
         List<EnderecoEntity> enderecos = new ArrayList<>();
         EnderecoEntity newEndereco = new EnderecoEntity(endereco);
-        newEndereco.setMunicipio(municipioRepository.getReferenceById(endereco.idMunicipio()));
+        newEndereco.setMunicipio(this.enderecoService.findMunicipioById(endereco.idMunicipio()));
         enderecos.add(newEndereco);
         return enderecos;
     }

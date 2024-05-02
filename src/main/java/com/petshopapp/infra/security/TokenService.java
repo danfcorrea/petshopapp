@@ -34,7 +34,8 @@ public class TokenService {
             Algorithm algorithm = Algorithm.HMAC256(secret);
             return JWT.require(algorithm)
                     .withIssuer("petshop-app")
-                    .build().verify(token)
+                    .build()
+                    .verify(token)
                     .getSubject();
         } catch (JWTVerificationException e){
             return null;

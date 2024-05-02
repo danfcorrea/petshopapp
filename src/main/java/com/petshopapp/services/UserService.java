@@ -1,10 +1,12 @@
-package com.petshopapp.services.user;
+package com.petshopapp.services;
 
 import com.petshopapp.models.user.UserEntity;
-import com.petshopapp.repositories.user.UserRepository;
+import com.petshopapp.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -13,6 +15,9 @@ public class UserService {
     private final UserRepository repository;
 
     public void saveUser(UserEntity user){
-        repository.save(user);
+        this.repository.save(user);
+    }
+    public Optional<UserEntity> findByEmailOrCpfCnpj(String login){
+        return this.repository.findByEmailOrCpfCnpj(login);
     }
 }
