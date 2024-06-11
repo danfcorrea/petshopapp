@@ -1,4 +1,4 @@
-package com.petshopapp.repositories.user;
+package com.petshopapp.repositories;
 
 import com.petshopapp.models.user.UserEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
